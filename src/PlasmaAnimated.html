@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pixel art</title>
+    <link rel="stylesheet" type="text/css" href="styles/site.css">
+</head>
+<body>
+    <canvas id="canvas" width="320" height="320"></canvas>
+    
+    <script src="scripts/PixelArtEngine.js"></script>
+
+
+
+    <script>
+        class PlasmaAnimation {
+            constructor(width, height, renderer) {
+                this.width = width;
+                this.height = height;
+                this.renderer = renderer;
+                this.tick = 0; // Der Zeit-Faktor für die Bewegung
+                this.palette = this._generatePalette();
+            }
+
+    // Palette einmalig generieren
+    _generatePalette() {
+        const palette = {};
+        for (let i = 0; i < 256; i++) {
+            const r = Math.floor(128 + 127 * Math.sin(Math.PI * i / 32));
+            const g = Math.floor(128 + 127 * Math.sin(Math.PI * i / 64));
+            const b = Math.floor(128 + 127 * Math.sin(Math.PI * i / 128));
+            palette[i] = "#" + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+        }
+        return palette;
+    }
+
+    // Berechnet den nächsten Frame
+    update() {
+        const rtData = [];
+        this.tick += 0.1; // Geschwindigkeit der Animation
+
+        for (let y = 0; y < this.height; y++) {
+            const row = [];
+            for (let x = 0; x < this.width; x++) {
+                
+                // Plasma-Formel mit 'this.tick' für Bewegung
+                let value = Math.sin(x / 12.0 + this.tick);
+                value += Math.sin(y / 6.0 + this.tick / 1.5);
+                value += Math.sin((x + y + this.tick) / 12.0);
+                value += Math.sin(Math.sqrt(x * x + y * y) / 6.0 + this.tick);
+                
+                value += 4; 
+                const colorId = Math.floor((value / 8) * 255) % 256;
+                row.push(colorId);
+            }
+            rtData.push(row);
+        }
+        return rtData;
+    }
+
+    start() {
+        this.renderer.setPalette(this.palette);
+
+        // Timer für ca. 20 FPS (1000ms / 20 = 50ms Intervall)
+        setInterval(() => {
+            const frameData = this.update();
+            this.renderer.draw(frameData);
+        }, 50); 
+    }
+}
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const renderer = new PixelRenderer();
+            renderer.initCanvas("canvas");
+            renderer.setPixelSize(8);
+            renderer.setSpace(0);
+            renderer.setGlow(true, 0.2);
+
+            // Animation starten (z.B. 40x40 Pixel für gute Performance)
+            const plasma = new PlasmaAnimation(40, 40, renderer);
+            plasma.start();
+        });
+         
+
+
+
+    </script>
+</body>
+</html>

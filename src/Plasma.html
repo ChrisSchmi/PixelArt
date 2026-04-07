@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pixel art</title>
+    <link rel="stylesheet" type="text/css" href="styles/site.css">
+</head>
+<body>
+    <canvas id="canvas" width="400" height="400">
+    </canvas>
+    <script src="scripts/PixelArtEngine.js"></script>
+
+
+
+    <script>
+        class PlasmaGenerator {
+            constructor(width, height) {
+                this.width = width;
+                this.height = height;
+            }
+
+            // Erzeugt die Palette als JSON-Objekt { id: hex }
+            generatePalette() {
+                const palette = {};
+                for (let i = 0; i < 256; i++) {
+                    // Klassischer Sinus-Farbverlauf
+                    const r = Math.floor(128 + 127 * Math.sin(Math.PI * i / 32));
+                    const g = Math.floor(128 + 127 * Math.sin(Math.PI * i / 64));
+                    const b = Math.floor(128 + 127 * Math.sin(Math.PI * i / 128));
+                    
+                    // Umwandlung in Hex-String #RRGGBB
+                    const hex = "#" + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+                    palette[i] = hex;
+                }
+                return palette;
+            }
+
+            // Erzeugt das 2D-Array (rtData)
+            generatePlasma() {
+                const rtData = [];
+
+                for (let y = 0; y < this.height; y++) {
+                    const row = [];
+                    for (let x = 0; x < this.width; x++) {
+                        
+                        // Plasma-Algorithmus (Sinus-Überlagerung)
+                        let value = Math.sin(x / 16.0);
+                        value += Math.sin(y / 8.0);
+                        value += Math.sin((x + y) / 16.0);
+                        value += Math.sin(Math.sqrt(x * x + y * y) / 8.0);
+                        value += 4; // Wert in positiven Bereich schieben (0 bis 8)
+                        value /= 8; // Normalisieren auf 0.0 bis 1.0
+
+                        // Auf 255 skalieren für die Paletten-ID
+                        const colorId = Math.floor(value * 255);
+                        row.push(colorId);
+                    }
+                    rtData.push(row);
+                }
+                return rtData;
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const width = 64;  // Anzahl der "Pixel" in der Breite
+            const height = 64; // Anzahl der "Pixel" in der Höhe
+
+            const gen = new PlasmaGenerator(width, height);
+            const myPalette = gen.generatePalette();
+            const myPlasmaData = gen.generatePlasma();
+
+            // Integration in deinen PixelRenderer
+            const renderer = new PixelRenderer();
+            renderer.initCanvas("canvas");
+            renderer.setPixelSize(10);
+            renderer.setSpace(0); // Für Plasma sieht 0 meist besser aus
+            renderer.setGlow(true, 0.3);
+
+            renderer.setPalette(myPalette);
+            renderer.draw(myPlasmaData);
+        });
+         
+
+
+
+    </script>
+</body>
+</html>

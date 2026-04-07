@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pixel art</title>
+    <link rel="stylesheet" type="text/css" href="styles/site.css">
+</head>
+<body>
+    <canvas id="canvas" width="400" height="400">
+    </canvas>
+    <script src="scripts/PixelArtEngine.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+           
+            const pixelArt = [
+                            [0,1,2,3,0,1,2,3,0,1,2,3,0,1,2,3,],
+                            [0,1,2,3,0,1,2,3,0,1,2,3,0,1,2,3,],
+                            [0,1,2,3,0,1,2,3,0,1,2,3,0,1,2,3,],
+                            [0,1,2,3,0,1,2,3,0,1,2,3,0,1,2,3,],
+                            [0,1,2,3,0,1,2,3,0,1,2,3,0,1,2,3,],
+                            [0,1,2,3,0,1,2,3,0,1,2,3,0,1,2,3,],
+                            [0,1,2,3,0,1,2,3,0,1,2,3,0,1,2,3,],
+                            [0,1,2,3,0,1,2,3,0,1,2,3,0,1,2,3,],
+                            [0,1,2,3,0,1,2,3,0,1,2,3,0,1,2,3,],
+                            [0,1,2,3,0,1,2,3,0,1,2,3,0,1,2,3,],
+                            [0,1,2,3,0,1,2,3,0,1,2,3,0,1,2,3,],
+                            [0,1,2,3,0,1,2,3,0,1,2,3,0,1,2,3,],
+                            [0,1,2,3,0,1,2,3,0,1,2,3,0,1,2,3,],
+                            [0,1,2,3,0,1,2,3,0,1,2,3,0,1,2,3,],
+                            [0,1,2,3,0,1,2,3,0,1,2,3,0,1,2,3,],
+                            [0,1,2,3,0,1,2,3,0,1,2,3,0,1,2,3,],
+                            ];
+
+            const PALETTE = {
+                0: "#000000", // Black
+                1: "#CC5500", // Dark Orange
+                2: "#FFD700", // Gold
+                3: "#FFBA00", // LightOrange
+            };
+
+            // Instance
+            const renderer = new PixelRenderer();
+
+            // Init
+            renderer.initCanvas("canvas");
+            renderer.setPalette(PALETTE);
+            renderer.setPixelSize(16); // Optional: Standard is 8
+            renderer.setSpace(2);     // Optional: Standard is 1
+            
+            // Glow on, 70% intensity
+            renderer.setGlow(true, 0.7);
+
+            // Draw the pixel art
+            renderer.draw(pixelArt);
+
+            // glow off
+            renderer.setGlow(false);
+
+            // set single pixel 
+            renderer.setPixel(0, 0, "#ffffff");
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pixel art</title>
+    <link rel="stylesheet" type="text/css" href="styles/site.css">
+</head>
+<body>
+    <canvas id="canvas" width="400" height="400">
+    </canvas>
+    <script src="scripts/PixelArtEngine.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+           
+            // Instance
+            const engine = new PixelRenderer();
+
+            // Init
+            engine.initCanvas("canvas");
+            engine.setPalette({ 1: "#00ff00" }); // green
+            engine.setPixelSize(1);
+            engine.setSpace(0);
+            engine.setGlow(true, 0.10); 
+
+            drawFern(engine, 1);
+
+        });
+
+        function drawFern(renderer, colorId) {
+    
+                let x = 0.0;
+                let y = 0.0;
+                let X = 0.0;
+
+                const a = [0.85, 0.2, -0.15, 0.0];
+                const b = [0.04, -0.26, 0.28, 0.0];
+                const c = [-0.04, 0.23, 0.26, 0.0];
+                const d = [0.85, 0.22, 0.24, 0.16];
+                const e = [0.0, 0.0, 0.0, 0.0];
+                const f = [1.6, 1.6, 0.44, 0.0];
+                const p = [85, 92, 99, 100];
+
+                const farbe = renderer.palette[colorId];
+
+                for (let i = 1; i <= 20000; i++) {
+                    // l = rand()%100 + 1;
+                    let l = Math.floor(Math.random() * 100) + 1;
+                    let k = 0;
+
+                    // Bestimmung des Index k basierend auf Wahrscheinlichkeit
+                    for (let I = 0; I < p.length; I++) {
+                        if (l <= p[I]) {
+                            k = I;
+                            break;
+                        }
+                    }
+
+                    // Transformation
+                    X = a[k] * x + b[k] * y + e[k];
+                    y = c[k] * x + d[k] * y + f[k];
+                    x = X;
+
+                    // Zeichnen (i > 10 überspringt die ersten Punkte, bis das Fraktal "einschwingt")
+                    if (i > 10) {
+                        /**
+                         * Umrechnung der Koordinaten:
+                         * x*40 + offset sorgt für die Breite
+                         * 410 - y*40 spiegelt es vertikal (da Canvas 0 oben ist)
+                         * Wir teilen durch (pixelSize + space), um die "Pixel-Indices" zu erhalten
+                         */
+                        const renderX = Math.floor((x * 40 + 150) / (renderer.pixelSize + renderer.space));
+                        const renderY = Math.floor((410 - y * 40) / (renderer.pixelSize + renderer.space));
+                        
+                        renderer.setPixel(renderX, renderY, farbe);
+                    }
+                }
+            }
+    </script>
+</body>
+</html>

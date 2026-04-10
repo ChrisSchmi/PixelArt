@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pixel art</title>
+    <link rel="stylesheet" type="text/css" href="styles/site.css">
+</head>
+<body>
+    <canvas id="canvas" width="400" height="400">
+    </canvas>
+    <script src="scripts/PixelArtEngine.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+           
+            const pixelArt = [
+                                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+                                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],  
+                                [0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,],
+                                [0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,],  
+                                [0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,],
+                                [0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,],  
+                                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+                                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],                                                                                               
+                                [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+                                [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],  
+                                [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+                                [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],  
+                                [3,6,6,0,0,0,0,0,0,0,0,0,0,2,0,0,],
+                                [2,6,6,7,7,0,6,0,0,0,4,4,4,2,2,0,],  
+                                [2,4,4,7,7,6,6,6,5,5,4,7,7,3,2,0,],
+                                [2,2,4,4,3,3,3,3,5,5,7,7,3,3,3,0,],                                                                                                                                  
+                            ];
+
+            const PALETTE = {
+                0: "#000000", // Black
+                1: "#ffffff", // White
+                2: "#0c12ff", // Blue
+                3: "#ff0000", // Red
+                4: "#ff9a00", // Orange
+                5: "#fee12b", // yellow
+                6: "#2be1fe", // Cyan
+                7: "#2bdd2b", // Green
+            };
+
+            // Instance
+            const renderer = new PixelRenderer();
+
+            // Init
+            renderer.initCanvas("canvas");
+            renderer.setPalette(PALETTE);
+            renderer.setPixelSize(16); // Optional: Standard is 8
+            renderer.setSpace(2);     // Optional: Standard is 1
+            
+            // Glow on, 70% intensity
+            renderer.setGlow(true, 0.70);
+
+            // test new auto scale feature
+            renderer.autoSize(true,pixelArt);
+
+            // Draw the pixel art
+            renderer.draw(pixelArt);
+        });
+    </script>
+</body>
+</html>

@@ -80,4 +80,22 @@ class PixelRenderer {
         // damit andere Canvas-Operationen nicht beeinflusst werden
         this.ctx.shadowBlur = 0;
     }
+
+    // Innerhalb deiner PixelRenderer Klasse:
+    autoSize(enabled, data) {
+        if (!enabled || !data || !this.canvas) return;
+
+        const rows = data.length;
+        const cols = data[0].length;
+
+        // Die Logik: (Anzahl * Größe) + (Zwischenräume * Space)
+        const calculatedWidth = (cols * this.pixelSize) + ((cols - 1) * this.space);
+        const calculatedHeight = (rows * this.pixelSize) + ((rows - 1) * this.space);
+
+        this.canvas.width = calculatedWidth;
+        this.canvas.height = calculatedHeight;
+        
+        // Falls deine Engine interne Skalierungen nutzt, hier updaten
+        console.log(`Canvas resized to: ${calculatedWidth}x${calculatedHeight}`);
+    }
 }

@@ -9,6 +9,11 @@ class PixelRenderer {
         // Glow Einstellungen
         this.glowEnabled = false;
         this.glowOpacity = 0.5; // Standard 50%
+
+        // für 3d
+        this.renderer = null; // Für Three.js WebGLRenderer
+        this.scene = null;
+        this.camera = null;        
     }
 
     initCanvas(canvasId) {
@@ -98,4 +103,94 @@ class PixelRenderer {
         // Falls deine Engine interne Skalierungen nutzt, hier updaten
         console.log(`Canvas resized to: ${calculatedWidth}x${calculatedHeight}`);
     }
+
+    init3D(canvasId) {
+        this.canvas = document.getElementById(canvasId);
+        if (!this.canvas)
+        {
+            console.error("Canvas ID '" + canvasId + "' not found!");
+            return;
+        }
+
+        // Scene & Camera Setup
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        this.camera.position.z = 15; // Etwas weiter weg für bessere Sicht
+
+        // 2. Renderer init
+        try {
+            this.renderer = new THREE.WebGLRenderer({ 
+                canvas: this.canvas, 
+                antialias: true 
+            });
+            this.renderer.setSize(window.innerWidth, window.innerHeight);
+            this.renderer.setClearColor(0x111111); // Dunkler Hintergrund
+        } catch (e) {
+            console.error("WebGL initialization failed:", e);
+        }
+    }
+
+
+    draw3D(pixelArtArray, rotate) {
+        const rotateArtwork = rotate || false;
+        if (!this.renderer || !this.scene) return;
+
+        // Scene leeren, damit bei neuem Draw nichts übereinander liegt
+while(this.scene.children.length > 0) { 
+        const object = this.scene.children[0];
+        
+        // Geometrie vom Grafikspeicher löschen
+        if (object.geometry) object.geometry.dispose();
+        
+        // Material vom Grafikspeicher löschen
+        if (object.material) {
+            if (Array.isArray(object.material)) {
+                object.material.forEach(m => m.dispose());
+            } else {
+                object.material.dispose();
+            }
+        }
+        
+        this.scene.remove(object); 
+    }
+
+        const size = this.pixelSize;
+
+        pixelArtArray.forEach((layer, z) => {
+            layer.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0 && this.palette[value]) {
+                        const geometry = new THREE.BoxGeometry(size, size, size);
+                        const material = new THREE.MeshBasicMaterial({ color: this.palette[value] });
+                        const cube = new THREE.Mesh(geometry, material);
+                        
+                        // Positionierung (zentriert x und y grob)
+                        cube.position.set(
+                            x * size - (layer[0].length * size / 2), 
+                            -y * size + (layer.length * size / 2), 
+                            z * size
+                        );
+                        //cube.position.set(x, -y, z);
+                        this.scene.add(cube);
+                    }
+                });
+            });
+        });
+
+        // Animation Loop 
+        if (!this.animationStarted) {
+            this.animationStarted = true;
+            const animate = () => {
+                requestAnimationFrame(animate);
+                if(rotateArtwork === true)
+                {
+                    this.scene.rotation.y += 0.01; // rotate
+                }
+
+                this.renderer.render(this.scene, this.camera);
+            };
+            animate();
+        }
+    }
 }
+

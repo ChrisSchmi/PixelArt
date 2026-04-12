@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pixel art</title>
+    <link rel="stylesheet" type="text/css" href="styles/site.css">
+</head>
+<body>
+
+    <canvas id="canvas"></canvas>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="scripts/PixelArtEngine.js"></script>
+
+    <script>
+        class PlasmaAnimation {
+            constructor(width, height, renderer) {
+                this.width = width;
+                this.height = height;
+                this.renderer = renderer;
+                this.tick = 0;
+                this.palette = this._generatePalette();
+            }
+
+            _generatePalette() {
+                const palette = {};
+                for (let i = 0; i < 256; i++) {
+                    const r = Math.floor(128 + 127 * Math.sin(Math.PI * i / 32));
+                    const g = Math.floor(128 + 127 * Math.sin(Math.PI * i / 64));
+                    const b = Math.floor(128 + 127 * Math.sin(Math.PI * i / 128));
+                    palette[i] = `rgb(${r},${g},${b})`;
+                }
+                return palette;
+            }
+
+            update() {
+                const rtData = [];
+                this.tick += 0.03; // Geschwindigkeit
+
+                for (let y = 0; y < this.height; y++) {
+                    const row = [];
+                    for (let x = 0; x < this.width; x++) {
+                        let value = Math.sin(x / 8.0 + this.tick);
+                        value += Math.sin(y / 4.0 + this.tick / 1.5);
+                        value += Math.sin((x + y + this.tick) / 8.0);
+                        value += Math.sin(Math.sqrt(x * x + y * y) / 4.0 + this.tick);
+                        
+                        value += 4; 
+                        const colorId = Math.floor((value / 8) * 255) % 256;
+                        row.push(colorId);
+                    }
+                    rtData.push(row);
+                }
+                return rtData;
+            }
+
+            start3D() {
+                this.renderer.setPalette(this.palette);
+                this.renderer.init3D("canvas");
+
+                const animate = () => {
+                    requestAnimationFrame(animate);
+                    const frameData = this.update();
+                    this.renderer.draw3D([frameData]);
+                };
+                animate();
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const renderer = new PixelRenderer();
+            renderer.setPixelSize(1.4); // Größe der Cubes
+
+            // 40x40 ist ein guter Kompromiss aus Optik und Speed
+            const plasma = new PlasmaAnimation(16, 16, renderer);
+            plasma.start3D();
+        });
+    </script>
+</body>
+</html>
